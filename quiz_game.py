@@ -1,22 +1,42 @@
-"""Quiz Game - Test your knowledge"""
-import random
+"""Quiz Game - Test your knowledge with daily AI-generated questions"""
+import json
+import os
+from datetime import date
 
-QUESTIONS = [
+QUESTIONS_FILE = os.path.join(os.path.dirname(__file__), "daily_questions.json")
+
+FALLBACK_QUESTIONS = [
     {"q": "What is the capital of France?", "a": "paris"},
     {"q": "What planet is known as the Red Planet?", "a": "mars"},
     {"q": "What is 7 x 8?", "a": "56"},
-    {"q": "What language is this game written in?", "a": "python"},
     {"q": "How many continents are there?", "a": "7"},
     {"q": "What is the largest ocean?", "a": "pacific"},
-    {"q": "What year did World War II end?", "a": "1945"},
-    {"q": "What is H2O commonly known as?", "a": "water"},
 ]
 
+
+def load_daily_questions():
+    """Load AI-generated questions from JSON, or fall back to defaults."""
+    today = str(date.today())
+
+    if os.path.exists(QUESTIONS_FILE):
+        with open(QUESTIONS_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+
+        if data.get("date") == today:
+            print("[AI-generated questions for today]\n")
+            return data["questions"]
+        else:
+            print("[Questions are outdated - run update_questions.py to refresh]\n")
+
+    print("[Using fallback questions - run update_questions.py for AI questions]\n")
+    return FALLBACK_QUESTIONS
+
 def play():
-    questions = random.sample(QUESTIONS, min(5, len(QUESTIONS)))
+    questions = load_daily_questions()
     score = 0
 
     print("Welcome to the Quiz Game!")
+    print(f"Today's date: {date.today()}")
     print(f"Answer {len(questions)} questions.\n")
 
     for i, q in enumerate(questions, 1):
